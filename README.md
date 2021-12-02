@@ -16,6 +16,8 @@ Quickly Installs:
 - user-based access control to complement RBAC
 - resource-based permissions, giving you 'resource' and 'verb' control at the role and user level, e.g. (all administrators can 'add' a server, only Pete can 'delete')
 
+You can see it in action, in this [ready-to-use skeleton](https://github.com/Saeven/laminas-mvc-skeleton).
+
 ### Missive
 
 Sure - there are other Authentication, ACL, and User modules out there. This one comes with out-of-the-box support for **Doctrine** - just plug in your user entity and go.
@@ -219,3 +221,34 @@ coming through SSL.
 
 * Working with Doctrine? [Click Here](INSTALL_DOCTRINE.md)
 * Want to roll your own Providers? [Click Here](INSTALL_CUSTOM.md)
+
+# Composer Tune-Ups
+
+This package's dependency chain depends on `doctrine/doctrine-module`, which in turn depends on `laminas/laminas-cache`.
+
+Laminas cache is wired in a strange way, and might attempt to install a ton of problematic adapters (depending on your PHP version). It is recommended that you use composer's replace to keep that mess out of your application, like so:
+
+```
+  "replace": {    
+    "laminas/laminas-cache-storage-adapter-apc": "*",
+    "laminas/laminas-cache-storage-adapter-apcu": "*",
+    "laminas/laminas-cache-storage-adapter-blackhole": "*",
+    "laminas/laminas-cache-storage-adapter-dba": "*",
+    "laminas/laminas-cache-storage-adapter-ext-mongodb": "*",
+    "laminas/laminas-cache-storage-adapter-filesystem": "*",
+    "laminas/laminas-cache-storage-adapter-memcache": "*",
+    "laminas/laminas-cache-storage-adapter-memcached": "*",
+    "laminas/laminas-cache-storage-adapter-mongodb": "*",
+    "laminas/laminas-cache-storage-adapter-redis": "*",
+    "laminas/laminas-cache-storage-adapter-session": "*",
+    "laminas/laminas-cache-storage-adapter-wincache": "*",
+    "laminas/laminas-cache-storage-adapter-xcache": "*",
+    "laminas/laminas-cache-storage-adapter-zend-server": "*",
+  },
+```
+
+What's more, since you are using this library, you probably aren't using `laminas/laminas-authentication`, which is also installed by doctrine-module. You can go ahead and throw this line into your replace block as well:
+
+```
+"laminas/laminas-authentication": "*",
+```
