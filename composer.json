@@ -71,7 +71,7 @@
   },
   "autoload": {
     "psr-4": {
-      "CirclicalUser\\": "src/CirclicalUser"
+      "CirclicalUser\\": "src/"
     }
   },
   "scripts": {
