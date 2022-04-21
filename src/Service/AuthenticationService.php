@@ -176,6 +176,7 @@ class AuthenticationService
 
     /**
      * Check to see if a user is logged in
+     * @phpstan-impure
      */
     public function hasIdentity(): bool
     {
