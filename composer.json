@@ -43,16 +43,6 @@
     "laminas/laminas-validator": "^2.15.1",
     "laminas/laminas-dependency-plugin": "^2.2.0"
   },
-  "replace": {
-    "laminas/laminas-cache-storage-adapter-apc": "*",
-    "laminas/laminas-cache-storage-adapter-dba": "*",
-    "laminas/laminas-cache-storage-adapter-memcache": "*",
-    "laminas/laminas-cache-storage-adapter-memcached": "*",
-    "laminas/laminas-cache-storage-adapter-mongodb": "*",
-    "laminas/laminas-cache-storage-adapter-wincache": "*",
-    "laminas/laminas-cache-storage-adapter-xcache": "*",
-    "laminas/laminas-cache-storage-adapter-zend-server": "*"
-  },
   "require-dev": {
     "phpspec/phpspec": "7.0.1",
     "friends-of-phpspec/phpspec-code-coverage": "@stable",
@@ -83,5 +73,11 @@
     "cs": "vendor/bin/phpcs",
     "stan": "vendor/bin/phpstan analyse -c ./phpstan.neon --memory-limit 1G --xdebug --ansi -vvv src",
     "test": "vendor/bin/phpspec run"
+  },
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true,
+      "laminas/laminas-dependency-plugin": true
+    }
   }
 }
