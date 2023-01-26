@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Application\Entity;
+namespace CirclicalUser\Entity;
 
 use CirclicalUser\Entity\UserApiToken;
 use CirclicalUser\Provider\AuthenticationRecordInterface;
