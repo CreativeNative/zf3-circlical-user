@@ -387,9 +387,9 @@ class AuthenticationService
      *  - COOKIE_USER has its contents encrypted by the system key
      *  - the random-named-cookie has its contents encrypted by the user key
      *
-     * @throws InvalidKey
      * @see self::setSessionCookies
      *
+     * @throws InvalidKey
      */
     public function getIdentity(): ?User
     {
@@ -508,7 +508,6 @@ class AuthenticationService
 
     /**
      * @param User $user Used by some password checkers to provide better checking
-     *
      * @throws WeakPasswordException
      */
     private function enforcePasswordStrength(string $password, User $user)
@@ -524,7 +523,6 @@ class AuthenticationService
      *
      * @param User   $user        The user to whom this password gets assigned
      * @param string $newPassword Cleartext password that's being hashed
-     *
      * @throws NoSuchUserException
      * @throws WeakPasswordException
      */
@@ -548,7 +546,6 @@ class AuthenticationService
      *
      * @param User   $user     The user to validate password for
      * @param string $password Cleartext password that'w will be verified
-     *
      * @throws PersistedUserRequiredException
      * @throws UserWithoutAuthenticationRecordException
      */
