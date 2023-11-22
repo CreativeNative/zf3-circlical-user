@@ -12,13 +12,13 @@ use CirclicalUser\Mapper\UserPermissionMapper;
 use CirclicalUser\Provider\RoleProviderInterface;
 use CirclicalUser\Service\AccessService;
 use CirclicalUser\Service\AuthenticationService;
-use interop\container\containerinterface;
 use Laminas\ServiceManager\Factory\FactoryInterface;
 use LogicException;
+use Psr\Container\ContainerInterface;
 
 class AccessServiceFactory implements FactoryInterface
 {
-    public function __invoke(containerinterface $container, $requestedName, ?array $options = null)
+    public function __invoke(ContainerInterface $container, $requestedName, ?array $options = null)
     {
         $config = $container->get('config');
         $userConfig = $config['circlical']['user'];

@@ -6,12 +6,12 @@ namespace CirclicalUser\Factory\Listener;
 
 use CirclicalUser\Listener\UserEntityListener;
 use DomainException;
-use interop\container\containerinterface;
 use Laminas\ServiceManager\Factory\FactoryInterface;
+use Psr\Container\ContainerInterface;
 
 class UserEntityListenerFactory implements FactoryInterface
 {
-    public function __invoke(containerinterface $container, $requestedName, ?array $options = null)
+    public function __invoke(ContainerInterface $container, $requestedName, ?array $options = null)
     {
         $config = $container->get('config');
 

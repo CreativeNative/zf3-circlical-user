@@ -7,12 +7,12 @@ namespace CirclicalUser\Factory\Controller\Plugin;
 use CirclicalUser\Controller\Plugin\AuthenticationPlugin;
 use CirclicalUser\Service\AccessService;
 use CirclicalUser\Service\AuthenticationService;
-use interop\container\containerinterface;
 use Laminas\ServiceManager\Factory\FactoryInterface;
+use Psr\Container\ContainerInterface;
 
 class AuthenticationPluginFactory implements FactoryInterface
 {
-    public function __invoke(containerinterface $container, $requestedName, ?array $options = null)
+    public function __invoke(ContainerInterface $container, $requestedName, ?array $options = null)
     {
         return new AuthenticationPlugin(
             $container->get(AuthenticationService::class),

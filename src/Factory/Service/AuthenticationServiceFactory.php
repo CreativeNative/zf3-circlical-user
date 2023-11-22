@@ -9,8 +9,8 @@ use CirclicalUser\Mapper\UserMapper;
 use CirclicalUser\Mapper\UserResetTokenMapper;
 use CirclicalUser\Provider\PasswordCheckerInterface;
 use CirclicalUser\Service\AuthenticationService;
-use interop\container\containerinterface;
 use Laminas\ServiceManager\Factory\FactoryInterface;
+use Psr\Container\ContainerInterface;
 use RuntimeException;
 
 use function base64_decode;
@@ -19,7 +19,7 @@ use function is_callable;
 
 class AuthenticationServiceFactory implements FactoryInterface
 {
-    public function __invoke(containerinterface $container, $requestedName, ?array $options = null)
+    public function __invoke(ContainerInterface $container, $requestedName, ?array $options = null)
     {
         $config = $container->get('config');
         $userConfig = $config['circlical']['user'];
