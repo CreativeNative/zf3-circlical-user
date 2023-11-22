@@ -21,9 +21,9 @@ use ParagonIE\Halite\Alerts\InvalidDigestLength;
 use ParagonIE\Halite\Alerts\InvalidKey;
 use ParagonIE\Halite\Alerts\InvalidMessage;
 use ParagonIE\Halite\Alerts\InvalidType;
-use ParagonIE\Halite\HiddenString;
 use ParagonIE\Halite\Symmetric\Crypto;
 use ParagonIE\Halite\Symmetric\EncryptionKey;
+use ParagonIE\HiddenString\HiddenString;
 use SodiumException;
 
 use function base64_decode;
@@ -147,7 +147,7 @@ class UserResetToken implements UserResetTokenInterface
         return $this->id;
     }
 
-    public function setStatus(int $status)
+    public function setStatus(int $status): void
     {
         if (!in_array($status, [UserResetTokenInterface::STATUS_UNUSED, UserResetTokenInterface::STATUS_INVALID, UserResetTokenInterface::STATUS_USED], true)) {
             throw new InvalidArgumentException("An invalid status is being set!");

@@ -7,7 +7,7 @@ namespace CirclicalUser\Factory\Listener;
 use CirclicalUser\Listener\AccessListener;
 use CirclicalUser\Service\AccessService;
 use Exception;
-use Interop\Container\ContainerInterface;
+use interop\container\containerinterface;
 use InvalidArgumentException;
 use Laminas\ServiceManager\Factory\FactoryInterface;
 
@@ -20,7 +20,7 @@ class AccessListenerFactory implements FactoryInterface
      *
      * @throws Exception
      */
-    public function __invoke(ContainerInterface $container, $requestedName, ?array $options = null)
+    public function __invoke(containerinterface $container, $requestedName, ?array $options = null)
     {
         $config = $container->get('config');
         $strategy = null;

@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace CirclicalUser\Factory\Strategy;
 
 use CirclicalUser\Strategy\RedirectStrategy;
-use Interop\Container\ContainerInterface;
+use interop\container\containerinterface;
 use InvalidArgumentException;
 use Laminas\ServiceManager\Factory\FactoryInterface;
 
 class RedirectStrategyFactory implements FactoryInterface
 {
-    public function __invoke(ContainerInterface $container, $requestedName, ?array $options = null)
+    public function __invoke(containerinterface $container, $requestedName, ?array $options = null)
     {
         $config = $container->get('config');
         if (!isset($config['circlical']['user']['deny_strategy']['options'])) {

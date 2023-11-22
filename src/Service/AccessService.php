@@ -24,7 +24,6 @@ use CirclicalUser\Provider\UserProviderInterface;
 use Exception;
 
 use function array_unique;
-use function get_class;
 use function in_array;
 use function is_array;
 use function is_string;
@@ -344,7 +343,7 @@ class AccessService
             return $this->groupPermissions->getPermissions($resource);
         }
 
-        throw new UnknownResourceTypeException($resource ? get_class($resource) : 'null');
+        throw new UnknownResourceTypeException($resource ? $resource::class : 'null');
     }
 
     /**
@@ -376,7 +375,7 @@ class AccessService
             return $this->userPermissions->getUserPermission($resource, $this->user);
         }
 
-        throw new UnknownResourceTypeException($resource ? get_class($resource) : 'null');
+        throw new UnknownResourceTypeException($resource ? $resource::class : 'null');
     }
 
     /**

@@ -26,13 +26,19 @@ use CirclicalUser\Provider\UserProviderInterface;
 use CirclicalUser\Provider\UserResetTokenInterface;
 use CirclicalUser\Provider\UserResetTokenProviderInterface;
 use Exception;
+use JsonException;
 use Laminas\Http\PhpEnvironment\RemoteAddress;
 use LogicException;
+use ParagonIE\Halite\Alerts\CannotPerformOperation;
+use ParagonIE\Halite\Alerts\InvalidDigestLength;
 use ParagonIE\Halite\Alerts\InvalidKey;
-use ParagonIE\Halite\HiddenString;
+use ParagonIE\Halite\Alerts\InvalidMessage;
+use ParagonIE\Halite\Alerts\InvalidType;
 use ParagonIE\Halite\KeyFactory;
 use ParagonIE\Halite\Symmetric\Crypto;
 use ParagonIE\Halite\Symmetric\EncryptionKey;
+use ParagonIE\HiddenString\HiddenString;
+use SodiumException;
 
 use function array_filter;
 use function array_values;
@@ -48,7 +54,7 @@ use function password_needs_rehash;
 use function password_verify;
 use function session_get_cookie_params;
 use function setcookie;
-use function strpos;
+use function str_contains;
 use function substr_count;
 use function time;
 use function trim;
@@ -176,7 +182,9 @@ class AuthenticationService
 
     /**
      * Check to see if a user is logged in
+     *
      * @phpstan-impure
+     * @throws InvalidKey
      */
     public function hasIdentity(): bool
     {
@@ -218,10 +226,16 @@ class AuthenticationService
      * Passed in by a successful form submission, should set proper auth cookies if the identity verifies.
      * The login should work with both username, and email address.
      *
-     * @throws BadPasswordException Thrown when the password doesn't work.
-     * @throws NoSuchUserException Thrown when the user can't be identified.
-     * @throws UserWithoutAuthenticationRecordException If a user was found by email, yet had no matching authentication record.
      * @throws AuthenticationDataException Can be thrown if your database isn't properly structured, e.g. distinct emails.
+     * @throws BadPasswordException Thrown when the password doesn't work.
+     * @throws CannotPerformOperation
+     * @throws InvalidDigestLength
+     * @throws InvalidKey
+     * @throws InvalidMessage
+     * @throws InvalidType
+     * @throws NoSuchUserException Thrown when the user can't be identified.
+     * @throws SodiumException
+     * @throws UserWithoutAuthenticationRecordException If a user was found by email, yet had no matching authentication record.
      */
     public function authenticate(string $username, string $password): User
     {
@@ -265,7 +279,6 @@ class AuthenticationService
     /**
      * Change an auth record username given a user id and a new username. Note that it may throw a NoSuchUserException when the user's authentication records couldn't be found
      *
-     * @throws NoSuchUserException
      * @throws UsernameTakenException
      * @throws UserWithoutAuthenticationRecordException
      */
@@ -296,8 +309,13 @@ class AuthenticationService
      * Set the auth session cookies that can be used to regenerate the session on subsequent visits
      *
      * @throws InvalidKey
+     * @throws CannotPerformOperation
+     * @throws InvalidDigestLength
+     * @throws InvalidMessage
+     * @throws InvalidType
+     * @throws SodiumException
      */
-    private function setSessionCookies(AuthenticationRecordInterface $authentication)
+    private function setSessionCookies(AuthenticationRecordInterface $authentication): void
     {
         $systemKey = new EncryptionKey($this->systemEncryptionKey);
         $sessionKey = new HiddenString($authentication->getRawSessionKey());
@@ -358,7 +376,7 @@ class AuthenticationService
     /**
      * Set a cookie with values defined by configuration
      */
-    private function setCookie(string $name, string $value, int $expiry, bool $httpOnly = true)
+    private function setCookie(string $name, string $value, int $expiry, bool $httpOnly = true): void
     {
         $sessionParameters = session_get_cookie_params();
         setcookie(
@@ -386,9 +404,9 @@ class AuthenticationService
      *  - COOKIE_USER has its contents encrypted by the system key
      *  - the random-named-cookie has its contents encrypted by the user key
      *
-     * @throws InvalidKey
      * @see self::setSessionCookies
      *
+     * @throws InvalidKey
      */
     public function getIdentity(): ?User
     {
@@ -420,7 +438,7 @@ class AuthenticationService
         try {
             $userTuple = Crypto::decrypt(base64_decode($_COOKIE[self::COOKIE_USER]), $systemKey)->getString();
 
-            if (strpos($userTuple, ':') === false) {
+            if (!str_contains($userTuple, ':')) {
                 throw new LogicException();
             }
 
@@ -494,12 +512,12 @@ class AuthenticationService
     /**
      * Remove all hash cookies, potentially saving one
      */
-    private function purgeHashCookies(?string $skipCookie = null)
+    private function purgeHashCookies(?string $skipCookie = null): void
     {
         $sp = session_get_cookie_params();
         $killTime = time() - 3600;
         foreach ($_COOKIE as $cookieName => $value) {
-            if ($cookieName !== $skipCookie && strpos($cookieName, self::COOKIE_HASH_PREFIX) !== false) {
+            if ($cookieName !== $skipCookie && str_contains($cookieName, self::COOKIE_HASH_PREFIX)) {
                 setcookie($cookieName, '', $killTime, '/', $sp['domain'], false, true);
             }
         }
@@ -509,7 +527,7 @@ class AuthenticationService
      * @param User $user Used by some password checkers to provide better checking
      * @throws WeakPasswordException
      */
-    private function enforcePasswordStrength(string $password, User $user)
+    private function enforcePasswordStrength(string $password, User $user): void
     {
         $userData = array_values(array_filter(array_values((array) $user), 'is_string'));
         if (!$this->passwordChecker->isStrongPassword($password, $userData)) {
@@ -522,10 +540,9 @@ class AuthenticationService
      *
      * @param User   $user        The user to whom this password gets assigned
      * @param string $newPassword Cleartext password that's being hashed
-     * @throws NoSuchUserException
-     * @throws WeakPasswordException
+     * @throws WeakPasswordException|UserWithoutAuthenticationRecordException
      */
-    public function resetPassword(User $user, string $newPassword)
+    public function resetPassword(User $user, string $newPassword): void
     {
         $this->enforcePasswordStrength($newPassword, $user);
 
@@ -566,7 +583,17 @@ class AuthenticationService
      * Register a new user into the auth tables, and, log them in. Essentially calls registerAuthenticationRecord
      * and then stores the necessary cookies and identity into the service.
      *
+     * @throws CannotPerformOperation
+     * @throws EmailUsernameTakenException
+     * @throws InvalidDigestLength
+     * @throws InvalidKey
+     * @throws InvalidMessage
+     * @throws InvalidType
+     * @throws MismatchedEmailsException
      * @throws PersistedUserRequiredException
+     * @throws SodiumException
+     * @throws UsernameTakenException
+     * @throws WeakPasswordException
      */
     public function create(User $user, string $username, string $password): AuthenticationRecordInterface
     {
@@ -585,7 +612,9 @@ class AuthenticationService
      *
      * Note, this method does not check password strength!
      *
+     * @throws CannotPerformOperation
      * @throws EmailUsernameTakenException
+     * @throws InvalidKey
      * @throws MismatchedEmailsException
      * @throws PersistedUserRequiredException
      * @throws UsernameTakenException
@@ -643,6 +672,8 @@ class AuthenticationService
 
     /**
      * Logout.  Reset the user authentication key, and delete all cookies.
+     *
+     * @throws InvalidKey
      */
     public function clearIdentity(): void
     {
@@ -665,9 +696,16 @@ class AuthenticationService
      * Forgot-password mechanisms are a potential back door; but they're needed.  This only takes care
      * of hash generation.
      *
-     * @throws NoSuchUserException
+     * @throws CannotPerformOperation
+     * @throws InvalidDigestLength
+     * @throws InvalidKey
+     * @throws InvalidMessage
+     * @throws InvalidType
      * @throws PasswordResetProhibitedException
+     * @throws SodiumException
      * @throws TooManyRecoveryAttemptsException
+     * @throws UserWithoutAuthenticationRecordException
+     * @throws JsonException
      */
     public function createRecoveryToken(User $user): UserResetToken
     {
@@ -687,7 +725,7 @@ class AuthenticationService
         $this->resetTokenProvider->invalidateUnusedTokens($auth);
 
         $remote = new RemoteAddress();
-        $remote->setUseProxy(true);
+        $remote->setUseProxy();
         $token = new UserResetToken($auth, $remote->getIpAddress());
         $this->resetTokenProvider->save($token);
 
@@ -696,9 +734,9 @@ class AuthenticationService
 
     /**
      * @throws InvalidResetTokenException
-     * @throws NoSuchUserException
      * @throws PasswordResetProhibitedException
      * @throws WeakPasswordException
+     * @throws UserWithoutAuthenticationRecordException
      */
     public function changePasswordWithRecoveryToken(User $user, int $tokenId, string $token, string $newPassword): void
     {
@@ -712,7 +750,7 @@ class AuthenticationService
         }
 
         $remote = new RemoteAddress();
-        $remote->setUseProxy(true);
+        $remote->setUseProxy();
 
         $resetToken = $this->resetTokenProvider->get($tokenId);
         if (!$resetToken) {

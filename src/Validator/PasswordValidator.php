@@ -20,9 +20,6 @@ class PasswordValidator extends AbstractValidator
 
     private PasswordCheckerInterface $passwordChecker;
 
-    /** @var array */
-    private $options;
-
     public function __construct(PasswordCheckerInterface $passwordChecker, ?array $options = null)
     {
         $this->passwordChecker = $passwordChecker;

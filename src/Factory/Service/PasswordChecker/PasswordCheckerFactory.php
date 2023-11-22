@@ -7,7 +7,7 @@ namespace CirclicalUser\Factory\Service\PasswordChecker;
 use CirclicalUser\Exception\PasswordStrengthCheckerException;
 use CirclicalUser\Provider\PasswordCheckerInterface;
 use CirclicalUser\Service\PasswordChecker\PasswordNotChecked;
-use Interop\Container\ContainerInterface;
+use interop\container\containerinterface;
 use Laminas\ServiceManager\Factory\FactoryInterface;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -23,7 +23,7 @@ class PasswordCheckerFactory implements FactoryInterface
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    public function __invoke(ContainerInterface $container, $requestedName, ?array $options = null)
+    public function __invoke(containerinterface $container, $requestedName, ?array $options = null)
     {
         $config = $container->get('config');
         $userConfig = $config['circlical']['user'];

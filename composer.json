@@ -27,29 +27,29 @@
   "prefer-stable": true,
   "require": {
     "ext-json": "*",
-    "php": "^7.4.0 | >=8",
-    "laminas/laminas-eventmanager": "^3.4",
-    "laminas/laminas-servicemanager": "^3.10.0",
-    "laminas/laminas-mvc": "^3.3.0",
-    "laminas/laminas-view": "^2.19.1",
-    "laminas/laminas-http": "^2.15.1",
-    "laminas/laminas-cache": "^3.1.2",
-    "doctrine/doctrine-orm-module": "^5.0.0",
-    "doctrine/doctrine-module": "^5.0.0",
-    "doctrine/orm": "^2.11.0",
-    "paragonie/halite": "^v4.8.0",
-    "ramsey/uuid": "^4.2.3",
-    "ramsey/uuid-doctrine": "^1.8.1",
-    "laminas/laminas-validator": "^2.15.1",
-    "laminas/laminas-dependency-plugin": "^2.2.0"
+    "php": ">=8",
+    "laminas/laminas-eventmanager": ">=3.11.0",
+    "laminas/laminas-servicemanager": ">=3.20.0",
+    "laminas/laminas-mvc": ">=3.6.1",
+    "laminas/laminas-view": ">=2.27.0",
+    "laminas/laminas-http": ">=2.18.0",
+    "laminas/laminas-cache": ">=3.10.1",
+    "doctrine/doctrine-orm-module": ">=6.0.1",
+    "doctrine/doctrine-module": ">=6.0.7",
+    "doctrine/orm": ">=2.17.1",
+    "paragonie/halite": ">=v5.0.0",
+    "ramsey/uuid": ">=4.7.5",
+    "ramsey/uuid-doctrine": ">=2.0.0",
+    "laminas/laminas-validator": ">=2.30.1",
+    "laminas/laminas-dependency-plugin": ">=2.2.0"
   },
   "require-dev": {
-    "phpspec/phpspec": "7.0.1",
+    "phpspec/phpspec": "@stable",
     "friends-of-phpspec/phpspec-code-coverage": "@stable",
-    "codacy/coverage": "^1.4.3",
-    "bjeavons/zxcvbn-php": "^1.3.1",
-    "laminas/laminas-coding-standard": "^2.3.0",
-    "phpstan/phpstan": "^1.3.2"
+    "codacy/coverage": "@stable",
+    "bjeavons/zxcvbn-php": "@stable",
+    "laminas/laminas-coding-standard": "@stable",
+    "phpstan/phpstan": "@stable"
   },
   "suggest": {
     "paragonie/passwdqc": "Add built-in support for password-strength checking! See README for configuration details.",
@@ -71,7 +71,8 @@
       "@test"
     ],
     "cs": "vendor/bin/phpcs",
-    "stan": "vendor/bin/phpstan analyse -c ./phpstan.neon --memory-limit 1G --xdebug --ansi -vvv src",
+    "cs-fix": "vendor/bin/phpcbf",
+    "stan": "vendor/bin/phpstan analyse -c ./phpstan.neon --memory-limit 1G --ansi -vvv src",
     "test": "vendor/bin/phpspec run"
   },
   "config": {
